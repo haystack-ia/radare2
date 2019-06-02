@@ -3723,13 +3723,13 @@ R_API int r_core_bin_update_arch_bits(RCore *r) {
 	return r_core_bin_set_arch_bits (r, name, arch, bits);
 }
 
-R_API int r_core_bin_raise(RCore *core, ut32 binfile_idx, ut32 binobj_idx) {
+R_API int r_core_bin_raise(RCore *core, ut32 binfile_idx) {
 	RBin *bin = core->bin;
 
-	if (binfile_idx == UT32_MAX && binobj_idx == UT32_MAX) {
+	if (binfile_idx == UT32_MAX) {
 		return false;
 	}
-	if (!r_bin_select_by_ids (bin, binfile_idx, binobj_idx)) {
+	if (!r_bin_select_by_ids (bin, binfile_idx)) {
 		return false;
 	}
 	RBinFile *bf = r_core_bin_cur (core);
@@ -3741,11 +3741,11 @@ R_API int r_core_bin_raise(RCore *core, ut32 binfile_idx, ut32 binobj_idx) {
 	return bf && r_core_bin_set_env (core, bf) && r_core_block_read (core);
 }
 
-R_API bool r_core_bin_delete(RCore *core, ut32 binfile_idx, ut32 binobj_idx) {
-	if (binfile_idx == UT32_MAX && binobj_idx == UT32_MAX) {
+R_API bool r_core_bin_delete(RCore *core, ut32 binfile_idx) {
+	if (binfile_idx == UT32_MAX) {
 		return false;
 	}
-	if (!r_bin_object_delete (core->bin, binfile_idx, binobj_idx)) {
+	if (!r_bin_object_delete (core->bin, binfile_idx)) {
 		return false;
 	}
 	RBinFile *binfile = r_core_bin_cur (core);
@@ -3770,10 +3770,10 @@ static bool r_core_bin_file_print(RCore *core, RBinFile *binfile, int mode) {
 	}
 	switch (mode) {
 	case '*':
-		r_cons_printf ("oba 0x%08"PFMT64x" %s # %d\n", binfile->o->boffset, name, binfile->o->id);
+		r_cons_printf ("oba 0x%08"PFMT64x" %s # %d\n", binfile->o->boffset, name, binfile->id);
 		break;
 	case 'q':
-		r_cons_printf ("%d\n", binfile->o->id);
+		r_cons_printf ("%d\n", binfile->id);
 		break;
 	case 'j':
 		// XXX there's only one binobj for each binfile...so we should change that json
@@ -3785,9 +3785,9 @@ static bool r_core_bin_file_print(RCore *core, RBinFile *binfile, int mode) {
 			ut8 bits = info ? info->bits : 0;
 			const char *asmarch = r_config_get (core->config, "asm.arch");
 			const char *arch = info ? info->arch ? info->arch: asmarch : "unknown";
-			r_cons_printf ("{\"objid\":%d,\"arch\":\"%s\",\"bits\":%d,\"binoffset\":%"
+			r_cons_printf ("{\"arch\":\"%s\",\"bits\":%d,\"binoffset\":%"
 					PFMT64d",\"objsize\":%"PFMT64d"}",
-					obj->id, arch, bits, obj->boffset, obj->obj_size);
+					arch, bits, obj->boffset, obj->obj_size);
 		}
 		r_cons_print ("]}");
 		break;
@@ -3799,7 +3799,7 @@ static bool r_core_bin_file_print(RCore *core, RBinFile *binfile, int mode) {
 			const char *asmarch = r_config_get (core->config, "asm.arch");
 			const char *arch = info ? info->arch ? info->arch: asmarch: "unknown";
 			r_cons_printf ("%4d  %s-%d at:0x%08"PFMT64x" sz:%"PFMT64d" ",
-					obj->id, arch, bits, obj->boffset, obj->obj_size );
+					binfile->id, arch, bits, obj->boffset, obj->obj_size );
 			r_cons_printf ("fd:%d %s\n", fd, name);
 		}
 		break;

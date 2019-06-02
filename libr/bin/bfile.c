@@ -566,7 +566,9 @@ R_IPI bool r_bin_file_set_cur_binfile_obj(RBin *bin, RBinFile *bf, RBinObject *o
 	bin->file = bf->file;
 	bin->cur = bf;
 	bin->narch = bf->narch;
-	bf->o = obj;
+	if (obj) {
+		bf->o = obj;
+	}
 	RBinPlugin *plugin = r_bin_file_cur_plugin (bf);
 	if (bin->minstrlen < 1) {
 		bin->minstrlen = plugin? plugin->minstrlen: bin->minstrlen;
