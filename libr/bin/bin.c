@@ -992,33 +992,28 @@ R_API int r_bin_select_object(RBinFile *binfile, const char *arch, int bits, con
 }
 
 // NOTE: this functiona works as expected, but  we need to merge bfid and boid
-R_API int r_bin_select_by_ids(RBin *bin, ut32 binfile_id, ut32 binobj_id) {
+R_API int r_bin_select_by_ids(RBin *bin, ut32 binfile_id) {
 	r_return_val_if_fail (bin, false);
 
-	RBinFile *binfile = NULL;
-	RBinObject *obj = NULL;
+	RBinFile *bf = NULL;
 
 	if (binfile_id == UT32_MAX && binobj_id == UT32_MAX) {
 		return false;
 	}
 	if (binfile_id == -1) {
-		binfile = r_bin_file_find_by_object_id (bin, binobj_id);
-		obj = binfile? r_bin_file_object_find_by_id (binfile, binobj_id): NULL;
+		bf = r_bin_file_find_by_object_id (bin, binobj_id);
 	} else if (binobj_id == -1) {
-		binfile = r_bin_file_find_by_id (bin, binfile_id);
-		obj = binfile? binfile->o: NULL;
+		bf = r_bin_file_find_by_id (bin, binfile_id);
 	} else {
-		binfile = r_bin_file_find_by_id (bin, binfile_id);
-		obj = binfile? r_bin_file_object_find_by_id (binfile, binobj_id): NULL;
-		if (!binfile || !obj) {
+		bf = r_bin_file_find_by_id (bin, binfile_id);
+		if (!bf) {
 			/// binobj_id : holds the binobj counter which should die
 			// binfile_id contains the actual binobj_id
 			// workaround to fix the binid, objid, binfd mess :facepalm:
-			binfile = r_bin_file_find_by_object_id (bin, binfile_id);
-			obj = binfile? r_bin_file_object_find_by_id (binfile, binfile_id): NULL;
+			bf = r_bin_file_find_by_object_id (bin, binfile_id);
 		}
 	}
-	return r_bin_file_set_cur_binfile_obj (bin, binfile, obj);
+	return r_bin_file_set_cur_binfile_obj (bin, bf);
 }
 
 static void list_xtr_archs(RBin *bin, int mode) {
@@ -1074,7 +1069,6 @@ static void list_xtr_archs(RBin *bin, int mode) {
 R_API void r_bin_list_archs(RBin *bin, int mode) {
 	r_return_if_fail (bin);
 
-	RListIter *iter;
 	int i = 0;
 	char unk[128];
 	char archline[128];

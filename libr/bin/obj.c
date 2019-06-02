@@ -153,11 +153,6 @@ R_IPI RBinObject *r_bin_object_new(RBinFile *bf, RBinPlugin *plugin, ut64 basead
 	o->boffset = offset;
 	o->strings_db = ht_up_new0 ();
 	o->regstate = NULL;
-	if (!r_id_pool_grab_id (bf->rbin->ids->pool, &o->id)) {
-		free (o);
-		eprintf ("Cannot grab an id\n");
-		return NULL;
-	}
 	o->kv = sdb_new0 ();
 	o->baddr = baseaddr;
 	o->baddr_shift = 0;
